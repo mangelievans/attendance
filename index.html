@@ -129,5 +129,50 @@
         <button type="submit">Submit</button>
       </form>
     </main>
-  </body>
+  
+  <script>
+    const attendanceForm = document.querySelector('form[action="/submit"]');
+    if (attendanceForm) {
+      const message = document.createElement("div");
+      message.setAttribute("role", "status");
+      message.setAttribute("aria-live", "polite");
+      message.hidden = true;
+      Object.assign(message.style, {
+        margin: "0 0 16px",
+        padding: "12px 16px",
+        border: "1px solid #b8e2c1",
+        borderRadius: "10px",
+        background: "#eefaf1",
+        color: "#176b34",
+        fontWeight: "700"
+      });
+      attendanceForm.parentElement.insertBefore(message, attendanceForm);
+
+      attendanceForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitButton = attendanceForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        message.hidden = false;
+        message.textContent = "Submitting...";
+
+        try {
+          const response = await fetch(attendanceForm.action, {
+            method: "POST",
+            body: new FormData(attendanceForm)
+          });
+          if (!response.ok) throw new Error("Submission failed");
+          message.textContent = "Submitted successfully.";
+          attendanceForm.reset();
+        } catch (error) {
+          message.textContent = "Could not submit. Please try again.";
+          message.style.borderColor = "#e7b7b7";
+          message.style.background = "#fff0f0";
+          message.style.color = "#9b1c1c";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+    }
+  </script>
 </html>
+</body>
